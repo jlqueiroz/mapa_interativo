@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnaqMaps</title>
+    
+    <!-- Folhas de estilo -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-map-marked-alt"></i>
+                <img src="C:\Users\Janderson Queiroz\OneDrive\Documents\AnaqMaps\Logo_trans_1.png" alt="AnaqMaps">
+            </div>
+            
+            <input type="text" class="title-input" id="map-title" placeholder="Título do Mapa...">
+            
+            <div class="search-box">
+                <input type="text" class="search-input" id="endereco" placeholder="Digite um endereço...">
+                <button class="tool-btn search" onclick="buscarEndereco()">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="tools-panel">
+                <div class="tool-section">
+                    <h3><i class="fas fa-draw-polygon"></i> Ferramentas de Desenho</h3>
+                    <button class="tool-btn draw" onclick="ativarDesenhoPoligono()">
+                        <i class="fas fa-draw-polygon"></i> Desenhar Polígono
+                    </button>
+                    <button class="tool-btn label" onclick="toggleLabelOptions()">
+                        <i class="fas fa-tag"></i> Adicionar Rótulo
+                    </button>
+                    
+                    <div class="label-options" id="labelOptions" style="display: none;">
+                        <label for="nomePoligono">Nome do Polígono:</label>
+                        <input type="text" id="nomePoligono" placeholder="Digite o nome do polígono">
+                        
+                        <label for="poligonoSelecionado">Selecionar Polígono:</label>
+                        <select id="poligonoSelecionado">
+                            <option value="">-- Selecione um polígono --</option>
+                        </select>
+                        
+                        <button class="tool-btn label" onclick="adicionarRotulo()">
+                            <i class="fas fa-tag"></i> Aplicar Rótulo
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tool-section">
+                    <h3><i class="fas fa-file-import"></i> Importação</h3>
+                    <button class="tool-btn import" onclick="importarKML()">
+                        <i class="fas fa-upload"></i> Importar KML
+                    </button>
+                    <button class="tool-btn import" onclick="carregarCamadasPredefinidas()">
+                        <i class="fas fa-layer-group"></i> Carregar Camadas Predefinidas
+                    </button>
+                    
+                    <div id="layer-controls" style="margin-top: 15px;">
+                        <!-- Controles de camadas serão adicionados aqui -->
+                    </div>
+                </div>
+
+                <div class="tool-section">
+                    <h3><i class="fas fa-shapes"></i> Gerenciar Polígonos</h3>
+                    <div id="polygon-controls">
+                        <!-- Controles de polígonos serão adicionados aqui -->
+                    </div>
+                </div>
+                
+                <div class="tool-section">
+                    <h3><i class="fas fa-print"></i> Impressão</h3>
+                    <button class="tool-btn print" onclick="togglePrintOptions()">
+                        <i class="fas fa-print"></i> Imprimir Mapa
+                    </button>
+                    
+                    <div class="print-options" id="printOptions" style="display: none;">
+                        <label for="tituloImpressao">Título do Mapa:</label>
+                        <input type="text" id="tituloImpressao" placeholder="Título para impressão">
+                        
+                        <label for="orientacao">Orientação:</label>
+                        <select id="orientacao">
+                            <option value="portrait">Retrato</option>
+                            <option value="landscape">Paisagem</option>
+                        </select>
+                        
+                        <button class="tool-btn print" onclick="prepararImpressao()">
+                            <i class="fas fa-print"></i> Preparar para Impressão
+                        </button>
+                    </div>
+                </div>
+
+                <div class="tool-section">
+                    <h3><i class="fas fa-crop-alt"></i> Área de Impressão</h3>
+                    <button class="tool-btn btn-info" onclick="toggleMolduraImpressao()">
+                        <i class="fas fa-crop-alt"></i> Mostrar Moldura A4
+                    </button>
+                    <button class="tool-btn btn-info" onclick="centralizarNaMoldura()">
+                        <i class="fas fa-crosshairs"></i> Centralizar na Moldura
+                    </button>
+                </div>
+
+                <div class="tool-section">
+                    <h3><i class="fas fa-arrows-alt"></i> Movimento</h3>
+                    <button id="btnToggleArraste" class="tool-btn btn-info" onclick="toggleArrastePoligonos()" data-arrastando="false">
+                        <i class="fas fa-arrows-alt"></i> Ativar Movimento de Polígonos
+                    </button>
+                    <button id="btnToggleRotulo" class="tool-btn btn-info" onclick="toggleArrasteRotulos()" data-arrastando="false">
+                        <i class="fas fa-text-width"></i> Ativar Movimento de Rótulos
+                    </button>
+                </div>               
+            </div>
+            
+            <div class="map-container">
+                <div id="map"></div>
+                <!-- Moldura da área de impressão -->
+                <div id="printFrame" class="print-frame" style="display: none;"></div>
+                <div id="printFrameLabel" class="print-frame-label" style="display: none;">ÁREA DE IMPRESSÃO A4</div>
+                <div class="print-frame-controls">
+                    <button class="frame-toggle" onclick="toggleMolduraImpressao()">
+                        <i class="fas fa-eye-slash"></i> Ocultar Moldura
+                    </button>
+                    <button class="frame-toggle" onclick="centralizarNaMoldura()">
+                        <i class="fas fa-crosshairs"></i> Centralizar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bibliotecas necessárias -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-omnivore/0.3.4/leaflet-omnivore.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    
+    <!-- Scripts da aplicação -->
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
